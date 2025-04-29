@@ -166,7 +166,7 @@ npm install
 
 ## System Architecture
 
-![alt text](assets/tadiran_system_arch.png)
+![alt text](../assets/tadiran_system_arch.png)
 
 ## Technologies Used
 
@@ -186,10 +186,10 @@ npm install
 
 ## Swagger Docs
 
-![alt text](./assets/image.png)
-![alt text](./assets/image-1.png)
-![alt text](./assets/image-2.png)
-![alt text](./assets/image-3.png)
+![alt text](../assets/image.png)
+![alt text](../assets/image-1.png)
+![alt text](../assets/image-2.png)
+![alt text](../assets/image-3.png)
 
 ---
 
@@ -197,43 +197,43 @@ npm install
 
 ## Menu
 
-![alt text](./assets/menu.jpg)
+![alt text](../assets/menu.jpg)
 
 ## Register
 
-![alt text](./assets/register.jpg)
+![alt text](../assets/register.jpg)
 
 ## Login
 
-![alt text](./assets/login.jpg)
+![alt text](../assets/login.jpg)
 
 ## Forgot Password
 
-![alt text](./assets/forgot_password.jpg)
+![alt text](../assets/forgot_password.jpg)
 
 ## Reset Password
 
-![alt text](./assets/reset_password.jpg)
+![alt text](../assets/reset_password.jpg)
 
 ## Create Warranty
 
-![alt text](./assets/create_warranty.jpg)
+![alt text](../assets/create_warranty.jpg)
 
 ## Warranty List
 
-![alt text](./assets/warranties_list.jpg)
+![alt text](../assets/warranties_list.jpg)
 
 ## Profile
 
-![alt text](./assets/profile.jpg)
+![alt text](../assets/profile.jpg)
 
 ## Edit Profile
 
-![alt text](./assets/edit_profile.jpg)
+![alt text](../assets/edit_profile.jpg)
 
 ## Settings
 
-![alt text](./assets/settings.jpg)
+![alt text](../assets/settings.jpg)
 
 ---
 
@@ -241,19 +241,19 @@ npm install
 
 ## Login
 
-![alt text](./assets/react-admin-login.png)
+![alt text](../assets/react-admin-login.png)
 
 ## Users
 
-![alt text](./assets/users.png)
+![alt text](../assets/users.png)
 
 ## Warranties
 
-![alt text](./assets/warranties.png)
+![alt text](../assets/warranties.png)
 
 ## Edit Warranty
 
-![alt text](./assets/edit-warranty.png)
+![alt text](../assets/edit-warranty.png)
 
 ## Video Demonstrations
 

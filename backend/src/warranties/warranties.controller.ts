@@ -154,7 +154,7 @@ export class WarrantiesController {
       'Content-Range',
       `warranties 0-${transformedData.length - 1}/${total}`,
     );
-    return transformedData;
+    return { data: transformedData, total };
   }
 
   @Put(':id')

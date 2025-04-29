@@ -65,7 +65,7 @@ export class UsersController {
 
     res.set('Content-Range', `users 0-${transformedData.length - 1}/${total}`);
 
-    return transformedData;
+    return { data: transformedData, total };
   }
 
   @Get(':id')
