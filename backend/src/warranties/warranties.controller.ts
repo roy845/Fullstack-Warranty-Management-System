@@ -106,7 +106,7 @@ export class WarrantiesController {
       `warranties 0-${transformedData.length - 1}/${total}`,
     );
 
-    return transformedData;
+    return { data: transformedData, total };
   }
 
   @Get(':id')
@@ -154,6 +154,7 @@ export class WarrantiesController {
       'Content-Range',
       `warranties 0-${transformedData.length - 1}/${total}`,
     );
+
     return { data: transformedData, total };
   }
 

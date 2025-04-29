@@ -4,16 +4,34 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  TextInput,
+  TouchableOpacity,
 } from "react-native";
 import { cn } from "@/src/utils/cn";
 import useDarkMode from "@/src/hooks/useDarkMode";
 import useFetchWarranties from "@/src/hooks/useFetchWarranties"; // 🔥
 import dayjs from "dayjs";
+import { Picker } from "@react-native-picker/picker";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function WarrantyListScreen() {
   const { isDarkMode } = useDarkMode();
-  const { warranties, loading, refreshing, refreshWarranties } =
-    useFetchWarranties();
+  const {
+    warranties,
+    loading,
+    refreshing,
+    page,
+    limit,
+    totalPages,
+    sortBy,
+    sortOrder,
+    setPage,
+    setLimit,
+    setSortBy,
+    setSortOrder,
+    handleSearchChange,
+    refreshWarranties,
+  } = useFetchWarranties();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -75,25 +93,79 @@ export default function WarrantyListScreen() {
           Warranties
         </Text>
       )}
-      {/* 🔥 Always show loading at the top */}
-      {loading && (
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#22c55e" className="mb-4" />
+      <View className="mb-4">
+        <TextInput
+          className={cn(
+            "border rounded-md p-2 mb-2",
+            isDarkMode ? "text-white border-white" : "border-black text-black"
+          )}
+          placeholder="Search By Client Name or Product Info"
+          placeholderTextColor={isDarkMode ? "#ccc" : "#666"}
+          onChangeText={handleSearchChange}
+        />
+        <View className="flex-row justify-between mb-2">
+          <Picker
+            selectedValue={limit}
+            style={{
+              flex: 1,
+              color: isDarkMode ? "white" : "black",
+              backgroundColor: isDarkMode ? "#1e293b" : "#f3f4f6",
+            }}
+            onValueChange={(itemValue) => setLimit(Number(itemValue))}
+          >
+            {[1, 2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((value) => (
+              <Picker.Item key={value} label={value.toString()} value={value} />
+            ))}
+          </Picker>
+
+          <Picker
+            selectedValue={sortBy}
+            style={{
+              flex: 1,
+              color: isDarkMode ? "white" : "black",
+              backgroundColor: isDarkMode ? "#1e293b" : "#f3f4f6",
+            }}
+            onValueChange={(itemValue) => setSortBy(itemValue)}
+          >
+            <Picker.Item label="Created At" value="createdAt" />
+            <Picker.Item label="Product Info" value="productInfo" />
+            <Picker.Item label="Client Name" value="clientName" />
+            <Picker.Item label="Status" value="status" />
+            <Picker.Item label="Updated At" value="updatedAt" />
+          </Picker>
+
+          <Picker
+            selectedValue={sortOrder}
+            style={{
+              flex: 1,
+              color: isDarkMode ? "white" : "black",
+              backgroundColor: isDarkMode ? "#1e293b" : "#f3f4f6",
+            }}
+            onValueChange={(itemValue) => setSortOrder(itemValue)}
+          >
+            <Picker.Item label="Descending" value="desc" />
+            <Picker.Item label="Ascending" value="asc" />
+          </Picker>
         </View>
-      )}
-      <FlatList
-        data={warranties}
-        keyExtractor={(item) => item._id}
-        renderItem={renderWarranty}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={refreshWarranties}
-            tintColor={isDarkMode ? "#fff" : "#000"}
-          />
-        }
-        ListEmptyComponent={
-          !loading ? (
+      </View>
+
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#22c55e" />
+        </View>
+      ) : (
+        <FlatList
+          data={warranties}
+          keyExtractor={(item) => item._id}
+          renderItem={renderWarranty}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refreshWarranties}
+              tintColor={isDarkMode ? "#fff" : "#000"}
+            />
+          }
+          ListEmptyComponent={
             <Text
               className={cn(
                 "text-center mt-20 text-lg",
@@ -102,9 +174,48 @@ export default function WarrantyListScreen() {
             >
               No warranties found.
             </Text>
-          ) : null
-        }
-      />
+          }
+        />
+      )}
+
+      {/* Pagination controls */}
+      {!loading && totalPages > 1 && (
+        <View className="flex-row justify-between items-center mt-4">
+          {/* Previous Button */}
+          <TouchableOpacity
+            disabled={page === 1}
+            onPress={() => setPage(Math.max(1, page - 1))}
+            className={cn(
+              "flex-row items-center bg-blue-700 py-2 px-4 rounded-lg",
+              page === 1 && "opacity-50"
+            )}
+          >
+            <FontAwesome name="arrow-left" size={16} color="white" />
+          </TouchableOpacity>
+
+          {/* Page Info */}
+          <Text
+            className={cn(
+              "text-center my-auto",
+              isDarkMode ? "text-white" : "text-black"
+            )}
+          >
+            {page} / {totalPages}
+          </Text>
+
+          {/* Next Button */}
+          <TouchableOpacity
+            disabled={page === totalPages}
+            onPress={() => setPage(Math.min(totalPages, page + 1))}
+            className={cn(
+              "flex-row items-center bg-blue-700 py-2 px-4 rounded-lg",
+              page === totalPages && "opacity-50"
+            )}
+          >
+            <FontAwesome name="arrow-right" size={16} color="white" />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }

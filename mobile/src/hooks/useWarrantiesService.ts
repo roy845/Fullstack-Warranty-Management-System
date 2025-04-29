@@ -17,11 +17,21 @@ const useWarrantiesService = () => {
     }
   };
 
-  const getAllUserWarranties = async () => {
+  const getAllUserWarranties = async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?:
+      | "clientName"
+      | "productInfo"
+      | "status"
+      | "createdAt"
+      | "updatedAt";
+    sortOrder?: "asc" | "desc";
+  }) => {
     try {
       const { userWarranties } = API_URLS;
-
-      return axiosPrivate.get(userWarranties);
+      return axiosPrivate.get(userWarranties, { params });
     } catch (error) {
       throw error;
     }

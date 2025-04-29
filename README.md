@@ -59,7 +59,7 @@ Admin Panel and Swagger API Docs can take a while to load because they are host 
 | :------------------- | :------------------------------------------------------------------------------------------------------------------------- |
 | **Admin Panel**      | [https://tadiran-assignment-react-admin.onrender.com/#/login](https://tadiran-assignment-react-admin.onrender.com/#/login) |
 | **Swagger API Docs** | [https://tadiran-assignment.onrender.com/api/swagger/docs](https://tadiran-assignment.onrender.com/api/swagger/docs)       |
-| **Mobile App**       | [Expo Project Link](https://expo.dev/accounts/royatali94/projects/frontend/builds/35f7da5f-47a4-4a63-9d5d-ddaddd134337)    |
+| **Mobile App**       | [Expo Project Link](https://expo.dev/accounts/royatali94/projects/frontend/builds/65d467b5-45ab-4c48-898c-da4e4ef46497)    |
 
 ---
 
