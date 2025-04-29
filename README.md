@@ -36,7 +36,7 @@ This project provides a complete warranty management platform, including:
 - **Mobile App**: Installers can:
   1. signup the app.
   2. login into the app.
-  3. register/submit warranties by fillind customer details and uploading invoice.
+  3. register/submit warranties by fill in customer details and uploading invoice.
 - **Backend API**: Secure RESTful services with authentication, authorization, and data management.
 
 ### Key features
