@@ -184,6 +184,16 @@ npm install
 
 ## Screenshots
 
+## Server
+
+## Root Page (Index)
+
+![alt text](../assets/main-server-page.png)
+
+## Not Found Page
+
+![alt text](../assets/not-found-page.png)
+
 ## Swagger Docs
 
 ![alt text](../assets/image.png)
