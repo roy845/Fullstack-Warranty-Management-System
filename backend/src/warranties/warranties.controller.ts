@@ -36,6 +36,7 @@ import { Warranty } from './entities/warranty.entity';
 import { ObjectIdValidationPipe } from 'src/pipes/object-id-validation.pipe';
 import { Response } from 'express';
 import { WarrantiesPaginatedParamsDto } from './dto/warranties-paginated-params.dto';
+import { fileFilter } from 'src/filters/file-filter.filter';
 
 @ApiBearerAuth()
 @ApiTags('Warranties')
@@ -44,7 +45,7 @@ export class WarrantiesController {
   constructor(private readonly warrantiesService: WarrantiesService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('invoice'))
+  @UseInterceptors(FileInterceptor('invoice', { fileFilter }))
   @ApiOperation({ summary: 'Create warranty' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({

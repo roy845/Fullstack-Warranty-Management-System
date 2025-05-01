@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { allowedOrigins } from './config/allowedOrigins';
 import { OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { config } from './config/swagger-ui.config';
@@ -8,12 +8,14 @@ import { ConfigService } from '@nestjs/config';
 import { CredentialsMiddleware } from './middlewares/CredentialsMiddleware';
 import { MongoDBExceptionFilter } from './filters/mongodb-exception.filter';
 import * as cookieParser from 'cookie-parser';
+import { NotFoundExceptionFilter } from './filters/not-found-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(new CredentialsMiddleware().use);
   app.useGlobalFilters(new MongoDBExceptionFilter());
+  app.useGlobalFilters(new NotFoundExceptionFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -39,7 +41,9 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
 
-  app.setGlobalPrefix('/api');
+  app.setGlobalPrefix('api', {
+    exclude: [{ path: '/', method: RequestMethod.GET }],
+  });
   const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/swagger/docs', app, document);
   const configService: ConfigService<unknown, boolean> = app.get(ConfigService);
