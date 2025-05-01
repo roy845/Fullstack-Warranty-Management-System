@@ -24,6 +24,8 @@ export class WarrantiesService {
     file: Express.Multer.File,
     userId: string,
   ) {
+    if (!file) throw new BadRequestException('Invoice file is required');
+
     const invoiceDate = await this.ocrService.parseInvoiceDate(file);
     let status: WarrantyStatus = WarrantyStatus.manual_review;
 
