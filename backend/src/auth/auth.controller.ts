@@ -15,6 +15,9 @@ import {
   ApiBody,
   ApiOkResponse,
   ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -56,7 +59,7 @@ export class AuthController {
     description: 'Login successful',
     type: SignInResponseDto,
   })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   signIn(@Body() signInDto: SignInDto): Promise<SignInResponseDto> {
     return this.authService.signIn(signInDto);
   }
@@ -65,8 +68,17 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiBody({ type: RefreshTokenDto })
-  @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
-  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+  @ApiOkResponse({
+    description: 'Access token refreshed successfully',
+    schema: {
+      example: {
+        accessToken: 'jwt-token',
+        message: 'access token refreshed successfully',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({ description: 'Missing or expired refresh token' })
+  @ApiForbiddenResponse({ description: 'Invalid refresh token' })
   refreshToken(
     @Body() refreshTokenDto: RefreshTokenDto,
     @Res() response: Response,
@@ -78,8 +90,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout user and invalidate refresh token' })
   @ApiBody({ type: RefreshTokenDto })
-  @ApiResponse({ status: 200, description: 'Logout successful' })
-  @ApiResponse({ status: 400, description: 'Invalid refresh token' })
+  @ApiOkResponse({
+    description:
+      'Logout successful (returns true) or Logout failed (returns false)',
+    type: Boolean,
+  })
   logout(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.logout(refreshTokenDto);
   }
@@ -88,12 +103,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send password reset email' })
   @ApiBody({ type: ForgotPasswordDto })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Reset token generated and sent',
     type: ForgotPasswordResponse,
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiNotFoundResponse({ description: 'User not found' })
   forgotPassword(
     @Body() forgotPasswordDto: ForgotPasswordDto,
   ): Promise<ForgotPasswordResponse> {
@@ -104,12 +118,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset user password with reset token' })
   @ApiBody({ type: ResetPasswordDto })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Password reset successful',
     type: String,
   })
-  @ApiResponse({ status: 400, description: 'Invalid or expired reset token' })
+  @ApiBadRequestResponse({
+    description: 'Invalid or expired reset token',
+  })
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<string> {
     return this.authService.resetPassword(resetPasswordDto);
   }
@@ -118,12 +133,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Admin login' })
   @ApiBody({ type: SignInDto })
   @ApiOkResponse({
-    description: 'Admin login successful. JWT access token generated.',
+    description:
+      'Admin login successful. JWT access and refresh tokens returned. Refresh token set as httpOnly cookie.',
     type: SignInResponseDto,
   })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid admin credentials',
-  })
+  @ApiUnauthorizedResponse({ description: 'Invalid admin credentials' })
   @HttpCode(HttpStatus.OK)
   async signInAdmin(
     @Body() signInDto: SignInDto,
@@ -139,9 +153,8 @@ export class AuthController {
     description: 'Admin access token refreshed successfully.',
     type: SignInResponseDto,
   })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid or expired admin refresh token',
-  })
+  @ApiUnauthorizedResponse({ description: 'No refresh token provided' })
+  @ApiForbiddenResponse({ description: 'Invalid or mismatched token' })
   @HttpCode(HttpStatus.OK)
   async refreshTokenAdmin(@Req() req: Request, @Res() res: Response) {
     const result = await this.authService.refreshTokenAdmin(req, res);
@@ -150,13 +163,13 @@ export class AuthController {
   }
 
   @Get('logout-admin')
-  @ApiOperation({ summary: 'Admin logout' })
+  @ApiOperation({ summary: 'Logout admin and clear refresh token cookie' })
   @ApiOkResponse({
-    description: 'Admin logged out successfully. Refresh token invalidated.',
-    type: String,
+    description: 'Admin logged out successfully. Cookie cleared.',
+    type: Boolean,
   })
   @ApiUnauthorizedResponse({
-    description: 'Unauthorized or invalid session',
+    description: 'Invalid session or no refresh token in cookie',
   })
   @HttpCode(HttpStatus.OK)
   async logoutAdmin(

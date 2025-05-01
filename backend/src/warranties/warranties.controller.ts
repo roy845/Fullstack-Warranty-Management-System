@@ -24,6 +24,11 @@ import {
   ApiTags,
   ApiParam,
   ApiOperation,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 import { UpdateWarrantyDto } from './dto/update-warranty.dto';
 import { User } from 'src/decorators/user.decorator';
@@ -32,11 +37,17 @@ import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { RolesGuard } from 'src/auth/guards/authorization.guard';
 import { UserRoles } from 'src/auth/roles/user-roles.enum';
 import { Roles } from 'src/auth/roles/roles.decorator';
-import { Warranty } from './entities/warranty.entity';
 import { ObjectIdValidationPipe } from 'src/pipes/object-id-validation.pipe';
 import { Response } from 'express';
 import { WarrantiesPaginatedParamsDto } from './dto/warranties-paginated-params.dto';
 import { fileFilter } from 'src/filters/file-filter.filter';
+import { WarrantyResponseDto } from './dto/warranty-response.dto';
+import { PaginatedWarrantiesResponseDto } from './dto/paginated-warranties-response.dto';
+import { UnauthorizedResponseDto } from 'src/common/unauthorized-response.dto';
+import { NoInvoiceFileResponseDto } from './dto/no-invoice-file-response.dto';
+import { ForbiddenResponseDto } from 'src/common/forbidden-response.dto';
+import { InvalidIdResponseDto } from 'src/common/invalid-id-response.dto';
+import { WarrantyNotFoundResponseDto } from './dto/warranty-not-found-response.dto';
 
 @ApiBearerAuth()
 @ApiTags('Warranties')
@@ -63,8 +74,18 @@ export class WarrantiesController {
   })
   @ApiOkResponse({
     description: 'Warranty created successfully.',
-    type: Warranty,
+    type: WarrantyResponseDto,
   })
+  @ApiBadRequestResponse({
+    description: 'Invoice file is required',
+    type: NoInvoiceFileResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
+  })
+  @ApiForbiddenResponse({ description: 'Only users can create warranties' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.USER)
   async create(
@@ -80,11 +101,19 @@ export class WarrantiesController {
   }
 
   @Get('mine')
-  @ApiOperation({ summary: 'Get all warranties of the current installer' })
+  @ApiOperation({
+    summary:
+      'Get all warranties of the current logged in installer with pagination, sorting, and search',
+  })
   @ApiOkResponse({
     description: 'List of warranties owned by the current user.',
-    type: [Warranty],
+    type: PaginatedWarrantiesResponseDto,
   })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.USER)
   async findMine(
@@ -120,7 +149,24 @@ export class WarrantiesController {
   })
   @ApiOkResponse({
     description: 'Warranty details retrieved successfully.',
-    type: Warranty,
+    type: WarrantyResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiForbiddenResponse({
+    description: 'Access denied due to missing roles or permissions',
+    type: ForbiddenResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid ObjectId format',
+    type: InvalidIdResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Warranty not found',
+    type: WarrantyNotFoundResponseDto,
   })
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.ADMIN)
@@ -133,10 +179,22 @@ export class WarrantiesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all warranties (Admin only)' })
+  @ApiOperation({
+    summary:
+      'Retrieve all warranties with pagination, sorting, and search (Admin only)',
+  })
   @ApiOkResponse({
     description: 'Paginated list of all warranties.',
-    type: [Warranty],
+    type: PaginatedWarrantiesResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiForbiddenResponse({
+    description: 'Access denied due to missing roles or permissions',
+    type: ForbiddenResponseDto,
   })
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.ADMIN)
@@ -169,7 +227,21 @@ export class WarrantiesController {
   })
   @ApiOkResponse({
     description: 'Warranty updated successfully.',
-    type: Warranty,
+    type: WarrantyResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'No fields provided for update' })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiForbiddenResponse({
+    description: 'Access denied due to missing roles or permissions',
+    type: ForbiddenResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Warranty not found',
+    type: WarrantyNotFoundResponseDto,
   })
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.ADMIN)
@@ -200,12 +272,20 @@ export class WarrantiesController {
   })
   @ApiOkResponse({
     description: 'Warranty deleted successfully.',
-    schema: {
-      example: {
-        message:
-          'Warranty with ID 65e732946f2f3b13a9a8035c deleted successfully',
-      },
-    },
+    type: WarrantyResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiForbiddenResponse({
+    description: 'Access denied due to missing roles or permissions',
+    type: ForbiddenResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Warranty not found',
+    type: WarrantyNotFoundResponseDto,
   })
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.ADMIN)

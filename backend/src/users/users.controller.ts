@@ -17,6 +17,11 @@ import {
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiBody,
+  ApiOkResponse,
+  ApiTags,
+  ApiNotFoundResponse,
+  ApiBadRequestResponse,
+  ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { Roles } from 'src/auth/roles/roles.decorator';
@@ -28,22 +33,38 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Response } from 'express';
 import { UserResponse } from './dto/user-response.dto';
 import { UsersPaginatedParamsDto } from './dto/users-paginated-params.dto';
+import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
+import { UnauthorizedResponseDto } from 'src/common/unauthorized-response.dto';
+import { ForbiddenResponseDto } from 'src/common/forbidden-response.dto';
+import { InvalidIdResponseDto } from 'src/common/invalid-id-response.dto';
+import { UserNotFoundResponseDto } from './dto/user-not-found-response.do';
 
+@ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @ApiOperation({
-    summary: 'Retrieve all users with pagination, sorting, and search',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of users retrieved successfully',
-  })
-  @ApiBearerAuth()
   @Get()
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.ADMIN)
+  @ApiOperation({
+    summary:
+      'Retrieve all users with pagination, sorting, and search (Admin only)',
+  })
+  @ApiOkResponse({
+    description: 'List of users retrieved successfully',
+    type: PaginatedUsersResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiForbiddenResponse({
+    description: 'Access denied due to missing roles or permissions',
+    type: ForbiddenResponseDto,
+  })
   async findAll(
     @Query() query: UsersPaginatedParamsDto,
     @Res({ passthrough: true }) res: Response,
@@ -72,17 +93,29 @@ export class UsersController {
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.USER)
   @ApiOperation({ summary: 'Find user by ID' })
-  @ApiBearerAuth()
   @ApiParam({
     name: 'id',
     type: String,
     description: 'User ID (Mongo ObjectId)',
+    example: '60f7e2462b4cfe001c2f7b7a',
   })
-  @ApiResponse({ status: 200, description: 'User retrieved successfully' })
+  @ApiOkResponse({
+    description: 'User retrieved successfully',
+    type: UserResponse,
+  })
   @ApiUnauthorizedResponse({
-    description: 'Unauthorized (Missing or invalid token)',
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
   })
-  @ApiForbiddenResponse({ description: 'Forbidden (Role not allowed)' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiBadRequestResponse({
+    description: 'Validation failed',
+    type: InvalidIdResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: UserNotFoundResponseDto,
+  })
   findOne(@Param('id', ObjectIdValidationPipe) id: string) {
     return this.usersService.findOne(id);
   }
@@ -91,18 +124,30 @@ export class UsersController {
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.USER)
   @ApiOperation({ summary: 'Update user by ID' })
-  @ApiBearerAuth()
   @ApiParam({
     name: 'id',
     type: String,
     description: 'User ID (Mongo ObjectId)',
+    example: '60f7e2462b4cfe001c2f7b7a',
   })
   @ApiBody({ type: UpdateUserDto })
-  @ApiResponse({ status: 200, description: 'User updated successfully' })
-  @ApiUnauthorizedResponse({
-    description: 'Unauthorized (Missing or invalid token)',
+  @ApiOkResponse({
+    description: 'User updated successfully',
+    type: UserResponse,
   })
-  @ApiForbiddenResponse({ description: 'Forbidden (Role not allowed)' })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
+  })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiBadRequestResponse({
+    description: 'Validation failed',
+    type: InvalidIdResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: UserNotFoundResponseDto,
+  })
   async update(
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -123,17 +168,29 @@ export class UsersController {
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.USER)
   @ApiOperation({ summary: 'Delete user by ID' })
-  @ApiBearerAuth()
   @ApiParam({
     name: 'id',
     type: String,
     description: 'User ID (Mongo ObjectId)',
+    example: '60f7e2462b4cfe001c2f7b7a',
   })
-  @ApiResponse({ status: 200, description: 'User deleted successfully' })
+  @ApiOkResponse({
+    description: 'User deleted successfully',
+    type: UserResponse,
+  })
   @ApiUnauthorizedResponse({
-    description: 'Unauthorized (Missing or invalid token)',
+    description: 'Unauthorized',
+    type: UnauthorizedResponseDto,
   })
-  @ApiForbiddenResponse({ description: 'Forbidden (Role not allowed)' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiBadRequestResponse({
+    description: 'Validation failed',
+    type: InvalidIdResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: UserNotFoundResponseDto,
+  })
   async remove(@Param('id', ObjectIdValidationPipe) id: string) {
     const removedUser = await this.usersService.remove(id);
 
