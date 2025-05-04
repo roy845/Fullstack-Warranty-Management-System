@@ -229,7 +229,10 @@ export class WarrantiesController {
     description: 'Warranty updated successfully.',
     type: WarrantyResponseDto,
   })
-  @ApiBadRequestResponse({ description: 'No fields provided for update' })
+  @ApiBadRequestResponse({
+    description: 'Invalid ObjectId format or No fields provided for update',
+    type: InvalidIdResponseDto,
+  })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
     type: UnauthorizedResponseDto,
@@ -273,6 +276,10 @@ export class WarrantiesController {
   @ApiOkResponse({
     description: 'Warranty deleted successfully.',
     type: WarrantyResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid ObjectId format',
+    type: InvalidIdResponseDto,
   })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
