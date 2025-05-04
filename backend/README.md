@@ -253,6 +253,10 @@ npm install
 
 ![alt text](../assets/react-admin-login.png)
 
+## Dashboard
+
+![alt text](../assets/dashboard.png)
+
 ## Users
 
 ![alt text](../assets/users.png)
