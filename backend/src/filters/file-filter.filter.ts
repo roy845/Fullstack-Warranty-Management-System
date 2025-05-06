@@ -17,7 +17,7 @@ export const fileFilter = (
     callback(null, true);
   } else {
     callback(
-      new BadRequestException('Only PDF, JPEG, and PNG files are allowed!'),
+      new BadRequestException('Only PDF, JPEG,JPG, and PNG files are allowed!'),
       false,
     );
   }
